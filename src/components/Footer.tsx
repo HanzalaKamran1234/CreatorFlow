@@ -2,9 +2,10 @@ import { PlaySquare } from 'lucide-react';
 
 interface FooterProps {
   onOpenLegal: (type: 'privacy' | 'terms') => void;
+  onOpenContact: () => void;
 }
 
-export default function Footer({ onOpenLegal }: FooterProps) {
+export default function Footer({ onOpenLegal, onOpenContact }: FooterProps) {
   return (
     <footer className="bg-slate-50 dark:bg-slate-950 py-12 border-t border-slate-200 dark:border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,7 +21,7 @@ export default function Footer({ onOpenLegal }: FooterProps) {
           <div className="flex items-center gap-6 text-sm font-medium text-slate-500 transition-colors">
             <button onClick={() => onOpenLegal('privacy')} className="hover:text-brand-600 transition-colors">Privacy Policy</button>
             <button onClick={() => onOpenLegal('terms')} className="hover:text-brand-600 transition-colors">Terms of Service</button>
-            <a href="mailto:hello@creatorflow.ai" className="hover:text-brand-600 transition-colors">Contact</a>
+            <button onClick={onOpenContact} className="hover:text-brand-600 transition-colors">Contact</button>
           </div>
 
         </div>
