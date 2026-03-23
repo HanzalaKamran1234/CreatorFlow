@@ -17,9 +17,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const data = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: 'wolfej938@gmail.com',
-      subject: `New Contact Form Message from ${name}`,
-      replyTo: email, // Optional: makes it easier for you to hit "Reply" in your inbox
+      to: 'growtoglow44@gmail.com',
+      subject: `[CreatorFlow] New Contact Message from ${name}`,
+      replyTo: email,
       html: `
         <h3>You have a new message from CreatorFlow</h3>
         <p><strong>Name:</strong> ${name}</p>
