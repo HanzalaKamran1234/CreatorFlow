@@ -8,6 +8,7 @@ import Pricing from './components/Pricing';
 import Footer from './components/Footer';
 import ResultsDashboard from './components/ResultsDashboard';
 import DashboardModal from './components/DashboardModal';
+import LegalModal from './components/LegalModal';
 import type { GeneratedContent } from './services/mockApi';
 import { createClerkSupabaseClient } from './lib/supabase';
 import { useUser, useAuth, useClerk } from '@clerk/clerk-react';
@@ -19,6 +20,7 @@ function App() {
 
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
   const [isDashboardModalOpen, setIsDashboardModalOpen] = useState(false);
+  const [legalType, setLegalType] = useState<'privacy' | 'terms' | null>(null);
   
   const [videosProcessed, setVideosProcessed] = useState(() => {
     const saved = localStorage.getItem('creatorflow_processed');
@@ -116,7 +118,7 @@ function App() {
         <Features />
         <Pricing />
       </main>
-      <Footer />
+      <Footer onOpenLegal={setLegalType} />
       
       <DashboardModal 
         isOpen={isDashboardModalOpen} 
@@ -124,6 +126,12 @@ function App() {
         onLogout={() => setIsDashboardModalOpen(false)}
         videosProcessed={videosProcessed}
         remainingCredits={remainingCredits}
+      />
+      
+      <LegalModal 
+        isOpen={legalType !== null} 
+        onClose={() => setLegalType(null)} 
+        type={legalType} 
       />
     </div>
   );
