@@ -20,8 +20,12 @@ export default function Hero({ onComplete, isLoggedIn, remainingCredits, onRequi
     e.preventDefault();
     if (!url.trim()) return;
 
-    if (!isLoggedIn && remainingCredits <= 0) {
-      onRequireAuth();
+    if (remainingCredits <= 0) {
+      if (!isLoggedIn) {
+        onRequireAuth();
+      } else {
+        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      }
       return;
     }
     
@@ -91,28 +95,42 @@ export default function Hero({ onComplete, isLoggedIn, remainingCredits, onRequi
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            disabled={isLoading}
-            placeholder="Paste your YouTube video link here..."
+            disabled={isLoading || remainingCredits <= 0}
+            placeholder={remainingCredits <= 0 ? "You're out of credits! Upgrade to continue." : "Paste your YouTube video link here..."}
             className="w-full flex-1 bg-transparent border-none outline-none py-4 px-4 md:pl-16 text-slate-900 dark:text-white placeholder:text-slate-400 text-lg disabled:opacity-50"
-            required
+            required={remainingCredits > 0}
           />
-          <button
-            type="submit"
-            disabled={isLoading || !url.trim()}
-            className="w-full md:w-auto flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-500 disabled:opacity-75 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" />
-                <span>Analyzing Video...</span>
-              </>
-            ) : (
-              <>
-                <span>Generate Content</span>
-                <ArrowRight size={20} />
-              </>
-            )}
-          </button>
+          {remainingCredits <= 0 ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (!isLoggedIn) onRequireAuth();
+                else document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg active:scale-[0.98] whitespace-nowrap"
+            >
+              <Sparkles size={20} />
+              <span>{isLoggedIn ? 'Upgrade to Pro' : 'Sign In to Continue'}</span>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={isLoading || !url.trim()}
+              className="w-full md:w-auto flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-500 disabled:opacity-75 text-white px-8 py-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98] whitespace-nowrap"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Analyzing Video...</span>
+                </>
+              ) : (
+                <>
+                  <span>Generate Content</span>
+                  <ArrowRight size={20} />
+                </>
+              )}
+            </button>
+          )}
         </motion.form>
 
         {error && (
@@ -130,10 +148,10 @@ export default function Hero({ onComplete, isLoggedIn, remainingCredits, onRequi
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-6 text-sm text-slate-500 dark:text-slate-400"
+          className={`mt-6 text-sm font-medium ${remainingCredits <= 0 ? 'text-amber-500 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`}
         >
           {isLoggedIn 
-            ? 'Generate unlimited content on your current plan.' 
+            ? (remainingCredits > 0 ? `You have ${remainingCredits > 900000 ? 'unlimited' : remainingCredits} videos remaining.` : 'Your free trial has ended. Please upgrade to continue.')
             : `No credit card required. ${remainingCredits > 0 ? `${remainingCredits} free ${remainingCredits === 1 ? 'video' : 'videos'} remaining.` : 'Trial ended. Sign in to continue.'}`
           }
         </motion.p>
