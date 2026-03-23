@@ -19,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       from: 'onboarding@resend.dev',
       to: 'wolfej938@gmail.com',
       subject: `New Contact Form Message from ${name}`,
-      reply_to: email, // Optional: makes it easier for you to hit "Reply" in your inbox
+      replyTo: email, // Optional: makes it easier for you to hit "Reply" in your inbox
       html: `
         <h3>You have a new message from CreatorFlow</h3>
         <p><strong>Name:</strong> ${name}</p>
