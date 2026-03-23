@@ -1,5 +1,7 @@
 import { Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useUser, useClerk } from '@clerk/clerk-react';
+import { useState } from 'react';
 
 const plans = [
   {
@@ -52,6 +54,48 @@ const plans = [
 ];
 
 export default function Pricing() {
+  const { user, isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (planName: string) => {
+    if (planName === 'Free') return; // Free plan has no checkout
+
+    if (!isSignedIn || !user) {
+      openSignIn();
+      return;
+    }
+
+    try {
+      setIsLoading(planName);
+      const planType = planName.toLowerCase();
+      
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planType,
+          userId: user.id,
+          returnUrl: window.location.origin
+        })
+      });
+
+      const { url, error } = await res.json();
+      
+      if (error) {
+        console.error("Checkout validation failed:", error);
+        alert(error);
+      } else if (url) {
+        window.location.href = url; // Redirect securely to Stripe
+      }
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      alert("Failed to initialize checkout. Make sure you are running Vercel Dev or the site is deployed.");
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
   return (
     <section id="pricing" className="py-24 bg-white dark:bg-slate-950 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-400/10 rounded-full blur-3xl pointer-events-none -z-10" />
@@ -111,8 +155,12 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <button className={`w-full py-4 rounded-xl font-bold transition-all mt-auto ${plan.highlighted ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white'}`}>
-                {plan.cta}
+              <button 
+                onClick={() => handleCheckout(plan.name)}
+                disabled={isLoading === plan.name}
+                className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all mt-auto ${plan.highlighted ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white'} ${isLoading === plan.name ? 'opacity-75 cursor-not-allowed' : ''}`}
+              >
+                {isLoading === plan.name ? 'Loading...' : plan.cta}
               </button>
             </motion.div>
           ))}
