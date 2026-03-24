@@ -8,7 +8,7 @@ import {
   generateThread,
   generateLinkedInPost,
   generateVideoIdeas
-} from '../src/services/aiService';
+} from '../src/services/aiService.js';
 import { Resend } from 'resend';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
