@@ -12,7 +12,7 @@ export const summarizeTranscript = async (transcript: string, tone: string = 'Pr
 
 export const generateHooks = async (summary: string, tone: string = 'Professional'): Promise<string[]> => {
   return [
-    `Want to know the secret to this? (${tone.toUpperCase()} EDITION) 🤫`,
+    `Want to know the secret to this? (${tone.toUpperCase()} EDITION) 🤫\n\n${summary.substring(0, 40)}...`,
     `Top 3 things I learned from this video you MUST know:`,
     `Stop scrolling! You won't believe this insight...`,
     `The ultimate guide to mastering this exact topic 📈`,
@@ -40,7 +40,7 @@ export const generateLinkedInPost = async (summary: string, tone: string = 'Prof
 
 export const generateVideoIdeas = async (summary: string, tone: string = 'Professional'): Promise<string[]> => {
   return [
-    `Concept 1 (${tone}): A rapid-fire Green Screen reaction to the most controversial 10 seconds of this video.`,
+    `Concept 1 (${tone}): A rapid-fire Green Screen reaction to the most controversial 10 seconds of this video, focusing on: "${summary.substring(0, 30)}..."`,
     `Concept 2: A 3-step tutorial breaking down the core concept for beginners using a whiteboard.`,
     `Concept 3: A POV stitch where you share how this specific mindset shift changed your workflow.`
   ];
