@@ -84,13 +84,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 2. Summarize
     const summary = await summarizeTranscript(transcriptText, tone);
 
-    // 3. Sequential generate to respect Gemini API Rate Limits (15 RPM)
-    // Running sequentially avoids slamming the free tier with 5 concurrent requests
-    const hooks = await generateHooks(summary, tone);
-    const captions = await generateCaptions(summary, tone);
-    const thread = await generateThread(summary, tone);
-    const linkedin = await generateLinkedInPost(summary, tone);
-    const videoIdeas = await generateVideoIdeas(summary, tone);
+    // 3. Parallel generate
+    // Reverted back to Promise.all because sequential execution exceeds Vercel Free Tier 10s Serverless Timeout.
+    const [hooks, captions, thread, linkedin, videoIdeas] = await Promise.all([
+      generateHooks(summary, tone),
+      generateCaptions(summary, tone),
+      generateThread(summary, tone),
+      generateLinkedInPost(summary, tone),
+      generateVideoIdeas(summary, tone)
+    ]);
 
     // Format structure to match frontend GeneratedContent interface
     const generatedData = {
