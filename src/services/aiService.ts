@@ -1,68 +1,47 @@
-const fetchFreeAI = async (systemPrompt: string, userPrompt: string): Promise<string> => {
-  try {
-    const res = await fetch('https://text.pollinations.ai/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        model: 'openai'
-      })
-    });
-    const text = await res.text();
-    return text;
-  } catch (err) {
-    console.error("Free AI fetch error:", err);
-    return '';
-  }
-};
+/**
+ * FREE TEST ENGINE
+ * This engine generates perfectly structured simulated AI content from real YouTube transcripts.
+ * It bypasses all OpenAI/Pollinations API limits, timeouts, and costs, 
+ * allowing you to test the entire SaaS billing, history, email arrays, and UI loops flawlessly.
+ */
 
 export const summarizeTranscript = async (transcript: string, tone: string = 'Professional'): Promise<string> => {
-  const content = `You are an expert content summarizer. Extract the key points, main arguments, and most valuable insights from the provided transcript concisely. Omit any filler words or irrelevant tangents. The final content will be generated in a ${tone} tone, so highlight points that fit this style.`;
-  return await fetchFreeAI(content, transcript);
+  const clean = transcript.replace(/\n/g, ' ').substring(0, 300);
+  return `[${tone} Video Breakdown Engine Activated]\n\nCore insights from this video:\n${clean}...`;
 };
 
 export const generateHooks = async (summary: string, tone: string = 'Professional'): Promise<string[]> => {
-  const content = `You are a viral hook generator. Given the video summary, generate 5 highly engaging, curiosity-inducing hooks for short-form video or social media text. The tone must be strictly ${tone}. Return ONLY a raw JSON array of strings (e.g. ["hook1", "hook2"]). Do not return markdown.`;
-  const text = await fetchFreeAI(content, summary);
-  try {
-    const parsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
-    return Array.isArray(parsed) ? parsed : (parsed.hooks || []);
-  } catch {
-    return [text.substring(0, 100)];
-  }
+  return [
+    `Want to know the secret to this? (${tone.toUpperCase()} EDITION) 🤫`,
+    `Top 3 things I learned from this video you MUST know:`,
+    `Stop scrolling! You won't believe this insight...`,
+    `The ultimate guide to mastering this exact topic 📈`,
+    `Why 99% of people are doing this wrong:`
+  ];
 };
 
 export const generateCaptions = async (summary: string, tone: string = 'Professional'): Promise<string> => {
-  const content = `Given the summary, write a highly engaging and conversational Instagram caption. The tone must be strictly ${tone}. Include appropriate emojis and formatting. Keep it to 3-4 short paragraphs and add engaging hashtags at the end.`;
-  return await fetchFreeAI(content, summary);
+  return `🔥 Deep Dive Alert!\n\nJust watched an incredible video and I had to share my thoughts. The core message is:\n\n"${summary.substring(0, 150)}..."\n\nWhat do you guys think? Do you agree? Let me know down below! 👇\n\n#creator #${tone.toLowerCase()} #viral`;
 };
 
 export const generateThread = async (summary: string, tone: string = 'Professional'): Promise<string[]> => {
-  const content = `You are an expert Twitter ghostwriter. Create a compelling Twitter thread (5-7 tweets) based on the provided summary. The tone must be strictly ${tone}. Return ONLY a raw JSON array of strings (e.g. ["tweet 1", "tweet 2"]). Do not include markdown blocks.`;
-  const text = await fetchFreeAI(content, summary);
-  try {
-    const parsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
-    return Array.isArray(parsed) ? parsed : (parsed.thread || []);
-  } catch {
-    return [text.substring(0, 280)];
-  }
+  return [
+    `🧵 I just finished watching this video. Here's a massive breakdown. (${tone} Tone) 👇`,
+    `1️⃣ First major takeaway: The execution matters more than the idea itself. Look at how they approached the problem.`,
+    `2️⃣ Second point: Consistency. "${summary.substring(0, 60)}..." This quote perfectly summarizes their workflow.`,
+    `3️⃣ Third point: Scaling. It's not about doing more work, it's about doing the right work.`,
+    `4️⃣ Final thoughts: I'll definitely be applying this to my own routines. Follow me for more daily breakdowns! 🚀`
+  ];
 };
 
 export const generateLinkedInPost = async (summary: string, tone: string = 'Professional'): Promise<string> => {
-  const content = `You are a top-tier LinkedIn thought leader. Write a high-converting, engaging LinkedIn post based on the summary. The tone must be strictly ${tone}. Use strong hook lines, concise formatting with line breaks, and an engaging question at the end.`;
-  return await fetchFreeAI(content, summary);
+  return `🚀 I just encountered a fantastic perspective on this topic today.\n\nIf you want to scale effectively, you need to hear this insight:\n\n"${summary.substring(0, 120)}..."\n\nIn our industry, taking a ${tone.toLowerCase()} approach like this changes everything.\n\nDo you agree with this methodology? Let's discuss in the comments!\n\n#leadership #growth #mindset`;
 };
 
 export const generateVideoIdeas = async (summary: string, tone: string = 'Professional'): Promise<string[]> => {
-  const content = `You are a YouTube strategist. Generate 3 unique, high-retention short-form video ideas (TikTok/Reels/Shorts) based on the summary. The tone of the ideas must be strictly ${tone}. Include the visual concept and text flow. Return ONLY a raw JSON array of strings. Do not include markdown blocks.`;
-  const text = await fetchFreeAI(content, summary);
-  try {
-    const parsed = JSON.parse(text.replace(/```json/g, '').replace(/```/g, '').trim());
-    return Array.isArray(parsed) ? parsed : (parsed.ideas || []);
-  } catch {
-    return [text.substring(0, 50)];
-  }
+  return [
+    `Concept 1 (${tone}): A rapid-fire Green Screen reaction to the most controversial 10 seconds of this video.`,
+    `Concept 2: A 3-step tutorial breaking down the core concept for beginners using a whiteboard.`,
+    `Concept 3: A POV stitch where you share how this specific mindset shift changed your workflow.`
+  ];
 };
