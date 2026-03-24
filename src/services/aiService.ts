@@ -1,10 +1,26 @@
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
-// Initialize the API client
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Lazy initialize to prevent Vercel module-level crashes if env var is missing
+const getModel = (json = false) => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is missing from Vercel Environment Variables. Please add it in your Vercel Dashboard settings.");
+  }
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  
+  if (json) {
+    return genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+      }
+    });
+  }
+  return genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+};
 
 export const summarizeTranscript = async (transcript: string, tone: string = 'Professional'): Promise<string> => {
+  const model = getModel();
   const prompt = `You are an expert content strategist. Summarize the following YouTube transcript into a comprehensive text that captures the core message, key takeaways, and interesting anecdotes.
 Tone: ${tone}
 Transcript: ${transcript}`;
@@ -19,18 +35,7 @@ Make them punchy and attention-grabbing.
 Tone: ${tone}
 Summary: ${summary}`;
 
-  const modelWithJson = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: SchemaType.ARRAY,
-        items: {
-          type: SchemaType.STRING,
-        },
-      },
-    }
-  });
+  const modelWithJson = getModel(true);
 
   const result = await modelWithJson.generateContent(prompt);
   return JSON.parse(result.response.text());
@@ -42,6 +47,7 @@ Include relevant emojis and 3-5 hashtags. Keep it structured and easy to read.
 Tone: ${tone}
 Summary: ${summary}`;
 
+  const model = getModel();
   const result = await model.generateContent(prompt);
   return result.response.text();
 };
@@ -52,18 +58,7 @@ The first tweet should be a strong hook. The last tweet should have a call to ac
 Tone: ${tone}
 Summary: ${summary}`;
 
-  const modelWithJson = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: SchemaType.ARRAY,
-        items: {
-          type: SchemaType.STRING,
-        },
-      },
-    }
-  });
+  const modelWithJson = getModel(true);
 
   const result = await modelWithJson.generateContent(prompt);
   return JSON.parse(result.response.text());
@@ -75,6 +70,7 @@ Use appropriate formatting (line breaks, strong opening hook, actionable takeawa
 Tone: ${tone}
 Summary: ${summary}`;
 
+  const model = getModel();
   const result = await model.generateContent(prompt);
   return result.response.text();
 };
@@ -84,18 +80,7 @@ export const generateVideoIdeas = async (summary: string, tone: string = 'Profes
 Tone: ${tone}
 Summary: ${summary}`;
 
-  const modelWithJson = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    generationConfig: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: SchemaType.ARRAY,
-        items: {
-          type: SchemaType.STRING,
-        },
-      },
-    }
-  });
+  const modelWithJson = getModel(true);
 
   const result = await modelWithJson.generateContent(prompt);
   return JSON.parse(result.response.text());

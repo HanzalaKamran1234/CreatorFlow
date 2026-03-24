@@ -151,6 +151,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error: any) {
     console.error('Generation Endpoint Error:', error);
-    return res.status(500).json({ error: 'Failed to generate content. Our AI might be experiencing high volume. Please try again.' });
+    return res.status(500).json({ error: error.message || 'Failed to generate content. Our AI might be experiencing high volume. Please try again.' });
   }
 }
