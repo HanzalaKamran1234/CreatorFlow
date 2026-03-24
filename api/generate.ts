@@ -67,14 +67,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(403).json({ error: 'You have exhausted your generation credits. Please upgrade your plan.' });
     }
 
-    // 1. Fetch transcript
+    // 1. Fetch transcript with a 6-second strict timeout
+    // YouTube often blocks Vercel IPs causing infinite hangs. This prevents Vercel 504 HTML Timeout crashes.
     let transcriptText = '';
     try {
-      const transcriptList = await YoutubeTranscript.fetchTranscript(url);
+      const fetchPromise = YoutubeTranscript.fetchTranscript(url);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('YOUTUBE_TIMEOUT')), 6000));
+      
+      const transcriptList = await Promise.race([fetchPromise, timeoutPromise]) as any[];
       transcriptText = transcriptList.map(t => t.text).join(' ');
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error fetching transcript:', e);
-      return res.status(400).json({ error: 'Failed to fetch transcript. The video might not have captions enabled or is restricted.' });
+      if (e.message === 'YOUTUBE_TIMEOUT') {
+        return res.status(400).json({ error: 'YouTube took too long to respond. The video might be restricting automated access. Please format a different video.' });
+      }
+      return res.status(400).json({ error: 'Failed to fetch transcript. The video might not have public English captions enabled.' });
     }
 
     if (transcriptText.length < 50) {
