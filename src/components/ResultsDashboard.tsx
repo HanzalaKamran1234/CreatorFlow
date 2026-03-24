@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import ContentCard from './ContentCard';
-import type { GeneratedContent } from '../services/mockApi';
+import type { GeneratedContent } from '../services/api';
 import { Sparkles, Video, Instagram, Linkedin, Twitter } from 'lucide-react';
 
 interface ResultsDashboardProps {

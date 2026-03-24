@@ -10,7 +10,7 @@ import ResultsDashboard from './components/ResultsDashboard';
 import DashboardModal from './components/DashboardModal';
 import LegalModal from './components/LegalModal';
 import ContactModal from './components/ContactModal';
-import type { GeneratedContent } from './services/mockApi';
+import type { GeneratedContent } from './services/api';
 import { createClerkSupabaseClient } from './lib/supabase';
 import { useUser, useAuth, useClerk } from '@clerk/clerk-react';
 
@@ -109,6 +109,7 @@ function App() {
         <Hero 
           onComplete={handleGenerateComplete} 
           isLoggedIn={isSignedIn || false}
+          userId={user?.id}
           remainingCredits={remainingCredits}
           onRequireAuth={() => openSignIn()}
         />

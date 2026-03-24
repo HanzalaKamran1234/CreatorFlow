@@ -41,7 +41,7 @@ const plans = [
     period: '/mo',
     description: 'For serious creators who want to scale their audience aggressively.',
     features: [
-      { text: 'Unlimited video generations', included: true },
+      { text: 'Unlimited video generations (250 videos limit)', included: true },
       { text: 'Twitter Thread generation', included: true },
       { text: 'LinkedIn & Instagram posts', included: true },
       { text: 'Viral hooks & short ideas', included: true },

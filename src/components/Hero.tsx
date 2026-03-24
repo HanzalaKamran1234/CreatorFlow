@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Youtube, ArrowRight, Sparkles, Loader2, AlertCircle } from 'lucide-react';
-import { generateContentFromVideo, type GeneratedContent } from '../services/mockApi';
+import { generateContentFromVideo, type GeneratedContent } from '../services/api';
 import LoadingOverlay from './LoadingOverlay';
 
 interface HeroProps {
   onComplete: (data: GeneratedContent) => void;
   isLoggedIn: boolean;
+  userId?: string;
   remainingCredits: number;
   onRequireAuth: () => void;
 }
 
-export default function Hero({ onComplete, isLoggedIn, remainingCredits, onRequireAuth }: HeroProps) {
+export default function Hero({ onComplete, isLoggedIn, userId, remainingCredits, onRequireAuth }: HeroProps) {
   const [url, setUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,7 +35,7 @@ export default function Hero({ onComplete, isLoggedIn, remainingCredits, onRequi
     setError('');
     
     try {
-      const data = await generateContentFromVideo(url);
+      const data = await generateContentFromVideo(url, userId);
       onComplete(data);
     } catch (err: any) {
       setError(err.message || 'An error occurred while generating content.');
@@ -161,7 +162,7 @@ export default function Hero({ onComplete, isLoggedIn, remainingCredits, onRequi
             ? 'Create a free account to instantly get 3 free video generations.'
             : (remainingCredits > 0 
                 ? (remainingCredits > 900000 
-                    ? 'You have unlimited video generations on the Pro plan! ✨' 
+                    ? 'You have unlimited video generations (250/mo limit) on the Pro plan! ✨' 
                     : `You have ${remainingCredits} free ${remainingCredits === 1 ? 'video' : 'videos'} remaining.`) 
                 : 'Your free trial has ended. Please upgrade below to continue.')
           }
