@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, PlaySquare, User } from 'lucide-react';
+import { Menu, X, PlaySquare, User, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 interface NavbarProps {
   onDashboardClick: () => void;
+  onHistoryClick: () => void;
 }
 
-export default function Navbar({ onDashboardClick }: NavbarProps) {
+export default function Navbar({ onDashboardClick, onHistoryClick }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -41,6 +42,15 @@ export default function Navbar({ onDashboardClick }: NavbarProps) {
           {/* Login / CTA / Profile */}
           <div className="hidden md:flex items-center space-x-4">
             <SignedIn>
+              <button 
+                onClick={onHistoryClick}
+                className="flex items-center gap-2 text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400 font-medium transition-colors p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <Clock size={18} />
+                </div>
+                <span className="hidden lg:inline">History</span>
+              </button>
               <button 
                 onClick={onDashboardClick}
                 className="flex items-center gap-2 text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400 font-medium transition-colors p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -91,6 +101,12 @@ export default function Navbar({ onDashboardClick }: NavbarProps) {
             <a href="#pricing" className="block text-slate-600 dark:text-slate-300 font-medium py-2">Pricing</a>
             <hr className="border-slate-200 dark:border-slate-800" />
             <SignedIn>
+              <button 
+                onClick={() => { setMobileMenuOpen(false); onHistoryClick(); }}
+                className="block w-full text-left text-purple-600 dark:text-purple-400 font-bold py-2 flex items-center gap-2"
+              >
+                <Clock size={18} /> Content History
+              </button>
               <button 
                 onClick={() => { setMobileMenuOpen(false); onDashboardClick(); }}
                 className="block w-full text-left text-brand-600 dark:text-brand-400 font-bold py-2 flex items-center gap-2"

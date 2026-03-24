@@ -9,6 +9,7 @@ import {
   generateLinkedInPost,
   generateVideoIdeas
 } from '../src/services/aiService';
+import { Resend } from 'resend';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS Headers
@@ -29,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { url, userId } = req.body;
+  const { url, userId, tone = 'Professional' } = req.body;
 
   if (!url || !userId) {
     return res.status(400).json({ error: 'YouTube URL and user authentication are required' });
@@ -48,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Fetch user usage from Supabase
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('credits_remaining, videos_processed, plan')
+      .select('credits_remaining, videos_processed, plan, email')
       .eq('id', userId)
       .single();
 
@@ -81,15 +82,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 2. Summarize
-    const summary = await summarizeTranscript(transcriptText);
+    const summary = await summarizeTranscript(transcriptText, tone);
 
     // 3. Parallel generate
     const [hooks, captions, thread, linkedin, videoIdeas] = await Promise.all([
-      generateHooks(summary),
-      generateCaptions(summary),
-      generateThread(summary),
-      generateLinkedInPost(summary),
-      generateVideoIdeas(summary)
+      generateHooks(summary, tone),
+      generateCaptions(summary, tone),
+      generateThread(summary, tone),
+      generateLinkedInPost(summary, tone),
+      generateVideoIdeas(summary, tone)
     ]);
 
     // Format structure to match frontend GeneratedContent interface
@@ -102,16 +103,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     // 4. Update usage stats
+    const newRemaining = profile.credits_remaining - 1;
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
-        credits_remaining: profile.credits_remaining - 1,
+        credits_remaining: newRemaining,
         videos_processed: profile.videos_processed + 1
       })
       .eq('id', userId);
 
     if (updateError) {
       console.error('Failed to update usage count:', updateError);
+    }
+
+    // 5. Check if we just hit 0 credits and send email
+    if (newRemaining === 0 && profile.email && process.env.RESEND_API_KEY && profile.plan !== 'pro') {
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: 'CreatorFlow <hello@creatorflow.io>',
+          to: profile.email,
+          subject: 'You have run out of free limits!',
+          text: 'Hey there! You just used your last video generation for this cycle. Upgrade to Pro today to unlock unlimited generation explicitly designed to 10x your content.'
+        });
+      } catch (err) {
+        console.warn('Silent failure sending exhaustion email:', err);
+      }
+    }
+
+    // 6. Log to Content History (generations table)
+    const { error: historyError } = await supabase
+      .from('generations')
+      .insert({
+        user_id: userId,
+        youtube_url: url,
+        tone: tone,
+        content: generatedData
+      });
+      
+    if (historyError) {
+      console.warn('Silent failure logging content history:', historyError);
     }
 
     // Return the data

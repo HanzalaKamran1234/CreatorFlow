@@ -6,11 +6,11 @@ export interface GeneratedContent {
   videoIdeas: string[];
 }
 
-export const generateContentFromVideo = async (url: string, userId?: string): Promise<GeneratedContent> => {
+export const generateContentFromVideo = async (url: string, userId?: string, tone: string = 'Professional'): Promise<GeneratedContent> => {
   const res = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, userId })
+    body: JSON.stringify({ url, userId, tone })
   });
 
   if (!res.ok) {

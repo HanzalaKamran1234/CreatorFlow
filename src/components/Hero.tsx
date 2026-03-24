@@ -14,6 +14,7 @@ interface HeroProps {
 
 export default function Hero({ onComplete, isLoggedIn, userId, remainingCredits, onRequireAuth }: HeroProps) {
   const [url, setUrl] = useState('');
+  const [tone, setTone] = useState('Professional');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,7 +36,7 @@ export default function Hero({ onComplete, isLoggedIn, userId, remainingCredits,
     setError('');
     
     try {
-      const data = await generateContentFromVideo(url, userId);
+      const data = await generateContentFromVideo(url, userId, tone);
       onComplete(data);
     } catch (err: any) {
       setError(err.message || 'An error occurred while generating content.');
@@ -102,6 +103,19 @@ export default function Hero({ onComplete, isLoggedIn, userId, remainingCredits,
             className="w-full flex-1 bg-transparent border-none outline-none py-4 px-4 md:pl-16 text-slate-900 dark:text-white placeholder:text-slate-400 text-lg disabled:opacity-50"
             required={!isLoggedIn || remainingCredits > 0}
           />
+          <div className="hidden md:block w-px h-10 bg-slate-200 dark:bg-slate-700 mx-2"></div>
+          <select 
+            value={tone}
+            onChange={(e) => setTone(e.target.value)}
+            disabled={isLoading || (isLoggedIn && remainingCredits <= 0)}
+            className="bg-transparent border-none outline-none px-2 py-4 text-slate-700 dark:text-slate-300 font-medium disabled:opacity-50 hidden sm:block appearance-none cursor-pointer"
+          >
+            <option value="Professional" className="text-slate-900">Professional</option>
+            <option value="Casual" className="text-slate-900">Casual</option>
+            <option value="Humorous" className="text-slate-900">Humorous</option>
+            <option value="Bold" className="text-slate-900">Bold</option>
+            <option value="Educational" className="text-slate-900">Educational</option>
+          </select>
           {!isLoggedIn ? (
             <button
               type="button"
@@ -145,10 +159,13 @@ export default function Hero({ onComplete, isLoggedIn, userId, remainingCredits,
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-6 flex items-center justify-center gap-2 text-red-500 bg-red-50/50 dark:bg-red-900/10 py-2 px-4 rounded-lg inline-flex max-w-2xl mx-auto border border-red-100 dark:border-red-900/30"
+            className="mt-6 flex items-start gap-3 text-red-600 bg-red-50 dark:bg-red-900/20 py-4 px-6 text-left max-w-2xl mx-auto rounded-xl border border-red-200 dark:border-red-900/40 shadow-sm"
           >
-            <AlertCircle size={18} />
-            <span className="text-sm font-medium">{error}</span>
+            <AlertCircle size={22} className="flex-shrink-0 mt-0.5" />
+            <div className="flex flex-col">
+              <span className="text-sm font-bold mb-1">Could not generate content</span>
+              <span className="text-sm font-medium text-red-500 dark:text-red-400">{error}</span>
+            </div>
           </motion.div>
         )}
 
